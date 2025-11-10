@@ -83,7 +83,7 @@ Jac API Server running on http://0.0.0.0:8000
 Available endpoints:
   POST /walker/codebase_genius
 
-# ⚙️ Terminal 2 – FastAPI Backend
+#  Terminal 2 – FastAPI Backend
 cd BE
 python api.py
 

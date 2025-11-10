@@ -1,0 +1,37 @@
+
+Key fixes applied:
+
+- Removed Python-style `if ... :` / `any()` inside Jac (Jac needs braces, not colons).
+- Expanded the extension checks explicitly.
+- Proper `catch` instead of `except` (Jac syntax).
+- Closed all blocks cleanly so the bytecode can be generated.
+
+---
+
+## 🔁 `BE/walker_codebase_genius.jac` (for completeness)
+
+Make sure this is present and untouched:
+
+```jac
+import json;
+
+walker codebase_genius {
+    has url: str;
+
+    can entry {
+        if not url {
+            report { "error": "Missing 'url' in context." };
+            stop;
+        }
+
+        sup = spawn node:Supervisor;
+        sup.url = url;
+
+        docs = sup.orchestrate(url);
+
+        report {
+            "url": url,
+            "documentation": docs
+        };
+    }
+}

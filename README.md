@@ -92,7 +92,7 @@ Expected output:
 
 INFO:     Uvicorn running on http://0.0.0.0:8080
 
-# 🖥️ Terminal 3 – Streamlit Frontend
+#  Terminal 3 – Streamlit Frontend
 cd FE
 streamlit run app.py
 
@@ -125,7 +125,7 @@ Example:
 curl http://localhost:8080/health
 # → {"status": "ok", "gemini_configured": true}
 
-# 📄 Example Output
+#  Example Output
 
 # Input:
 

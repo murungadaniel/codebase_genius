@@ -1,18 +1,23 @@
+include supervisor;
+
 walker codebase_genius {
-    has url: str = "";
+    has url: str;
 
-    obj __specs__ {
-        static has auth: bool = False;
-    }
+    # The ability MUST have a name: here it's `run`.
+    can run with entry {
+        if not self.url {
+            report {
+                "error": "Missing 'url' argument."
+            };
+            return;
+        };
 
-    can execute with root entry {
-        if not self.url or "github.com" not in self.url {
-            report {"error": "Valid GitHub URL with .git required."};
-            disengage;
-        }
+        sup = Supervisor();
+        sup.url = self.url;
 
-        supervisor = Supervisor(url=self.url);
-        root ++> supervisor;
-        visit supervisor;
+        report {
+            "message": "Jac walker ran successfully.",
+            "url": self.url
+        };
     }
 }

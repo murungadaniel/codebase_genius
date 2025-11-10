@@ -1,35 +1,49 @@
 import streamlit as st
-import requests
+from pathlib import Path
 
-CHAT_API = "http://localhost:8080/chat"
+def _load_docs(docs_path: str) -> str:
+    path = Path(docs_path)
+    if path.exists():
+        return path.read_text(encoding="utf-8")
+    return ""
 
 def chat_interface():
-    if "messages" not in st.session_state:
-        st.session_state.messages = []
+    if "docs_path" not in st.session_state:
+        st.info("Generate documentation first to ask questions about the codebase.")
+        return
 
-    for msg in st.session_state.messages:
-        with st.chat_message(msg["role"]):
-            st.markdown(msg["content"])
+    docs = _load_docs(st.session_state.docs_path)
+    if not docs:
+        st.warning("No documentation loaded.")
+        return
 
-    if prompt := st.chat_input("Ask about functions, architecture, or usage..."):
-        st.session_state.messages.append({"role": "user", "content": prompt})
-        with st.chat_message("user"):
-            st.markdown(prompt)
+    if "chat_history" not in st.session_state:
+        st.session_state.chat_history = []
 
-        with st.chat_message("assistant"):
-            with st.spinner("Thinking..."):
-                try:
-                    resp = requests.post(
-                        CHAT_API,
-                        json={
-                            "message": prompt,
-                            "context": st.session_state.get("docs_path", "")
-                        },
-                        timeout=60
-                    )
-                    answer = resp.json().get("answer", "No response.")
-                except:
-                    answer = "Chat backend not available."
+    # Show history
+    for role, msg in st.session_state.chat_history:
+        with st.chat_message(role):
+            st.markdown(msg)
 
-                st.markdown(answer)
-                st.session_state.messages.append({"role": "assistant", "content": answer})
+    prompt = st.chat_input("Ask something about this repository...")
+    if not prompt:
+        return
+
+    # Naive helper using the generated docs as guidance text.
+    # (You can later upgrade this to call Gemini again if allowed.)
+    answer = (
+        "Here's how to approach it based on the generated documentation:\n\n"
+        "- Check the **Overview** to confirm the repo's purpose.\n"
+        "- Look at the **Repository Structure** and **Key Files** sections for relevant modules.\n"
+        "- Use **How to Run Locally** for setup/commands.\n"
+        "- Refer to **Possible Improvements** for refactoring ideas.\n\n"
+        "For the specific answer, read the sections that mention the components you're asking about."
+    )
+
+    st.session_state.chat_history.append(("user", prompt))
+    st.session_state.chat_history.append(("assistant", answer))
+
+    with st.chat_message("user"):
+        st.markdown(prompt)
+    with st.chat_message("assistant"):
+        st.markdown(answer)
